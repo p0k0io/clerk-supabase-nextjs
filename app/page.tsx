@@ -9,6 +9,8 @@ export default function Home() {
   const [name, setName] = useState("");
   // The `useUser()` hook will be used to ensure that Clerk has loaded data about the logged in user
   const { user } = useUser();
+
+  console.log(user?.)
   // The `useSession()` hook will be used to get the Clerk session object
   const { session } = useSession();
 
