@@ -25,7 +25,7 @@ export default function RootLayout({
             <SignedIn>
               <UserButton />
             </SignedIn>
-             <PricingTable />
+             
           </header>
           <main>{children}</main>
         </body>
