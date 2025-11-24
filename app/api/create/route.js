@@ -14,5 +14,6 @@ export async function POST(req) {
     console.log("Text Input:", textInput);
     console.log("Options - Word:", word, "PDF:", pdf, "Image:", image);
 
+    
     return new Response(JSON.stringify({ message: "Data received", body }), { status: 200 });
 }
