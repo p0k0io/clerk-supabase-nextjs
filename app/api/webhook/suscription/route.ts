@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
 
     // Buscar item activo
     const activeItem = subscription.items?.find((item: any) => item.status === "active");
-    const newPlan = activeItem?.plan?.slug || "free_user";
+    const newPlan = activeItem?.plan?.slug || "free";
     const newCredits = creditsByPlan[newPlan] ?? 1000;
 
     switch (event.type) {
