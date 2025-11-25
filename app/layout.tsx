@@ -30,7 +30,7 @@ MiApp
 <nav className="hidden md:flex space-x-4 text-white/80 text-sm font-medium">
 <a href="/dashboard" className="hover:text-white transition">Dashboard</a>
 <a href="/docs" className="hover:text-white transition">Docs</a>
-<a href="/apikey" className="hover:text-white transition">API Key</a>
+<a href="/dashboard/apikey" className="hover:text-white transition">API Key</a>
 <a href="/budget" className="hover:text-white transition">Budget</a>
 </nav>
 </SignedIn>

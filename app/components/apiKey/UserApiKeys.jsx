@@ -34,24 +34,26 @@ export default function UserApiKeys() {
     fetchKeys();
   }, [user]);
 
-  const handleDelete = async (key) => {
-    try {
-      const res = await fetch("/api/delete/api-key", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ keyName: key.name }),
-      });
+ const handleDelete = async (key) => {
+  console.log("Deleting key:", key);
+  try {
+    const res = await fetch("/api/delete/api-key", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ keyName: key.id_key }),
+    });
 
-      const data = await res.json();
-      if (res.ok) {
-        setKeys((prev) => prev.filter((k) => k.name !== key.name));
-      } else {
-        console.error(data.error);
-      }
-    } catch (err) {
-      console.error("Error deleting key:", err);
+    const data = await res.json();
+    if (res.ok) {
+      setKeys((prev) => prev.filter((k) => k.name !== key.name));
+    } else {
+      console.error(data.error);
     }
-  };
+  } catch (err) {
+    console.error("Error deleting key:", err);
+  }
+};
+
 
   if (loading) return <p className="text-white/70">Cargando API keys...</p>;
   if (!keys || keys.length === 0)

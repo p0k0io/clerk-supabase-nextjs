@@ -13,6 +13,7 @@ export default function Home() {
   // The `useSession()` hook will be used to get the Clerk session object
   return (
     <div className=" w-full h-20 bg-green-300">
+      Eric
     </div>
  
   );

@@ -27,7 +27,7 @@ export async function POST(req: Request) {
 
     const { data, error } = await supabase
       .from("api_keys")
-      .select("name, pre, created_at")
+      .select("id_key,name, pre, created_at")
       .eq("id_user", userId)
       .order("created_at", { ascending: false });
 
