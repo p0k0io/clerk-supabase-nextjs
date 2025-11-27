@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
     // Buscar item activo
     const activeItem = subscription.items?.find((item: any) => item.status === "active");
     const newPlan = activeItem?.plan?.slug || "free";
-    const newCredits = creditsByPlan[newPlan] ?? 1000;
+    const newCredits = creditsByPlan[newPlan] ?? 10000;
 
     switch (event.type) {
       case "subscription.created":
@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
       case "subscription.canceled": {
         const { error } = await supabase
           .from("users")
-          .update({ plan: "free_user", credits: creditsByPlan["free_user"] })
+          .update({ plan: "free", credits: creditsByPlan["free"] })
           .eq("id_user", id_user);
 
         if (error) {
@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
           return NextResponse.json({ error: error.message }, { status: 500 });
         }
 
-        console.log(`Suscripción cancelada, plan vuelto a "free_user" y créditos a ${creditsByPlan["free_user"]} para usuario ${id_user}`);
+        console.log(`Suscripción cancelada, plan vuelto a "free" y créditos a ${creditsByPlan["free_user"]} para usuario ${id_user}`);
         break;
       }
 
