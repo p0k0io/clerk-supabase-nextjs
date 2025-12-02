@@ -19,22 +19,26 @@ export async function POST(req: Request) {
     }
 
     const { data, error } = await supabase
-      .from("endpoints")
-      .select("id, id_user, name, info, created_at")
+      .from("users")
+      .select("credits")
       .eq("id_user", userId)
-      .order("created_at", { ascending: false });
+      .single();
 
     if (error) {
-      console.error("Error fetching endpoints:", error);
+      console.error("Error fetching budget (credit):", error);
       return NextResponse.json(
         { error: "Database fetch failed" },
         { status: 500 }
       );
     }
 
-    return NextResponse.json({ endpoints: data });
+    return NextResponse.json(
+      { credits: data?.credits ?? null },
+      { status: 200 }
+    );
+
   } catch (err) {
-    console.error("Error getting endpoints:", err);
+    console.error("Error in budget endpoint:", err);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

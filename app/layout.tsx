@@ -31,7 +31,7 @@ MiApp
 <a href="/dashboard" className="hover:text-white transition">Dashboard</a>
 <a href="/docs" className="hover:text-white transition">Docs</a>
 <a href="/dashboard/apikey" className="hover:text-white transition">API Key</a>
-<a href="/budget" className="hover:text-white transition">Budget</a>
+<a href="/dashboard/budget" className="hover:text-white transition">Budget</a>
 </nav>
 </SignedIn>
 
@@ -58,9 +58,9 @@ Iniciar sesión
 <SignedIn>
 <nav className="md:hidden w-full max-w-3xl flex justify-center mb-3 text-white/80 text-sm space-x-3">
 <a href="/dashboard" className="hover:text-white transition">Dashboard</a>
-<a href="/docs" className="hover:text-white transition">Docs</a>
+<a href="/dashboard/docs" className="hover:text-white transition">Docs</a>
 <a href="/dashboard/apikey" className="hover:text-white transition">API Key</a>
-<a href="/budget" className="hover:text-white transition">Budget</a>
+<a href="/dashboard/budget" className="hover:text-white transition">Budget</a>
 </nav>
 </SignedIn>
 
