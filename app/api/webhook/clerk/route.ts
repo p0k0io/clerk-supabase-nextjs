@@ -5,7 +5,7 @@ import { createClient } from "@supabase/supabase-js";
 // 🔹 Variables de entorno del backend
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.NEXT_PUBLIC_SUPABASE_KEY;
-const CLERK_WEBHOOK_SIGNING_SECRET = process.env.CLERK_WEBHOOK_SIGNING_SECRET;
+const CLERK_WEBHOOK_SIGNING_SECRET = process.env.CLERK_WEBHOOK_SIGNING_SECRET as string;
 
 // Validación de variables
 if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
