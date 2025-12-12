@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useUser } from "@clerk/nextjs";
 
-import CreateEndPopup from "../components/endpoint/CreateEndPopup";
 import EndpointList from "../components/endpoint/EndpointList";
 import EndpointDetails from "../components/endpoint/EndpointDetails";
+import CreateEndPopup from "../components/endpoint/CreateEndPopup";
 
 export default function Home() {
   const { user, isLoaded } = useUser();
@@ -15,13 +16,12 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  const openCreateModal = () => setPopupOpen(true);
   const handleSelect = (endpoint) => setSelectedCard(endpoint);
   const handleClose = () => setSelectedCard(null);
+  const openCreateModal = () => setPopupOpen(true);
 
-  // Fetch endpoints desde la API
   const fetchEndpoints = async () => {
-    if (!user) return; // Protección extra
+    if (!user) return;
     setLoading(true);
     setErrorMsg("");
 
@@ -32,10 +32,7 @@ export default function Home() {
         body: JSON.stringify({ userId: user.id }),
       });
 
-      if (!res.ok) {
-        const err = await res.text();
-        throw new Error(err);
-      }
+      if (!res.ok) throw new Error(await res.text());
 
       const data = await res.json();
       setEndpoints(data.endpoints || []);
@@ -47,34 +44,73 @@ export default function Home() {
     }
   };
 
-  // Solo llamar a fetch cuando Clerk haya cargado el usuario
   useEffect(() => {
-    if (isLoaded && user) {
-      fetchEndpoints();
-    }
+    if (isLoaded && user) fetchEndpoints();
   }, [isLoaded, user]);
 
   return (
-    <div className="w-full h-screen flex justify-center items-start pt-10 p-8 overflow-hidden relative">
+    <div className="w-full h-auto p-5 flex flex-col">
+      {/* Contenedor principal de lista + detalles */}
+      <div className="flex flex-row gap-3 flex-1 overflow-hidden pl-28">
+        {/* LISTA */}
+        <motion.div
+          className="w-[380px] flex-shrink-0 h-full overflow-y-auto"
+          animate={{ x: selectedCard ? -80 : 0 }}
+          transition={{ type: "spring", stiffness: 250, damping: 30 }}
+        >
+          <EndpointList
+            endpoints={endpoints}
+            loading={loading}
+            errorMsg={errorMsg}
+            handleSelect={handleSelect}
+            openCreateModal={openCreateModal}
+            selectedCard={selectedCard}
+          />
+        </motion.div>
 
-      {/* LISTA IZQUIERDA */}
-      <EndpointList
-        endpoints={endpoints}
-        loading={loading}
-        errorMsg={errorMsg}
-        handleSelect={handleSelect}
-        openCreateModal={openCreateModal}
-        selectedCard={selectedCard}
-      />
+        {/* DETALLES */}
+        <AnimatePresence>
+          {selectedCard && (
+            <motion.div
+              className="flex-1 h-full overflow-y-auto"
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 50 }}
+              transition={{ type: "spring", stiffness: 250, damping: 30 }}
+            >
+              <EndpointDetails
+                selectedCard={selectedCard}
+                handleClose={handleClose}
+                refresh={fetchEndpoints}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
 
-      {/* DETALLES DERECHA */}
-      <EndpointDetails
-        selectedCard={selectedCard}
-        handleClose={handleClose}
-        refresh={fetchEndpoints}
-      />
+      {/* PANEL INFERIOR ESTADÍSTICAS */}
+      <div className="w-full mt-8 h-auto rounded-xl p-4bg-white/5 border border-white/10 rounded-xl p-4 overflow-y-auto">
+        <h3 className="text-white text-lg font-semibold mb-3">Estadísticas</h3>
+        <div className="space-y-3">
+          {["Peticiones recientes", "Promedio de respuesta", "Tamaño enviado", "Errores detectados"].map(
+            (titulo, index) => (
+              <details
+                key={index}
+                className="bg-black/20 border border-white/10 rounded-lg p-3 text-white/80 cursor-pointer transition-all"
+              >
+                <summary className="font-semibold text-white cursor-pointer">
+                  {titulo}
+                </summary>
+                <div className="mt-2 text-sm text-white/70">
+                  <p>Contenido de ejemplo para "{titulo}".</p>
+                </div>
+              </details>
+            )
+          )}
+        </div>
+      </div>
 
-      {/* POPUP CREAR ENDPOINT */}
+      {/* POPUP */}
       <CreateEndPopup
         open={popupOpen}
         onClose={() => {

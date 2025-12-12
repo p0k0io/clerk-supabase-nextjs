@@ -1,39 +1,52 @@
 "use client";
 
 import { FolderOpen, Pencil, Save, XCircle, Trash } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function EndpointDetails({ selectedCard, handleClose }) {
   const [isEditing, setIsEditing] = useState(false);
-
-  const [jsonValue, setJsonValue] = useState(
-    selectedCard ? JSON.stringify(selectedCard.info, null, 2) : ""
-  );
-
+  const [jsonValue, setJsonValue] = useState("");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
 
-  const startEditing = () => {
-    setIsEditing(true);
+  // 🔥 Cuando cambia el endpoint seleccionado, resetear edición y JSON
+  useEffect(() => {
+    if (selectedCard) {
+      setIsEditing(false);
+      setError("");
+      setSuccessMsg("");
 
-    setJsonValue(
+      setJsonValue(
         JSON.stringify(
-        typeof selectedCard.info === "string"
+          typeof selectedCard.info === "string"
             ? JSON.parse(selectedCard.info)
             : selectedCard.info,
-        null,
-        2
+          null,
+          2
         )
-    );
-    };
+      );
+    }
+  }, [selectedCard]);
 
+  const startEditing = () => {
+    setIsEditing(true);
+  };
 
   const cancelEditing = () => {
     setIsEditing(false);
     setError("");
     setSuccessMsg("");
-    setJsonValue(JSON.stringify(selectedCard.info, null, 2));
+
+    setJsonValue(
+      JSON.stringify(
+        typeof selectedCard.info === "string"
+          ? JSON.parse(selectedCard.info)
+          : selectedCard.info,
+        null,
+        2
+      )
+    );
   };
 
   const saveChanges = async () => {
@@ -61,10 +74,7 @@ export default function EndpointDetails({ selectedCard, handleClose }) {
         }),
       });
 
-      if (!res.ok) {
-        const err = await res.text();
-        throw new Error(err);
-      }
+      if (!res.ok) throw new Error(await res.text());
 
       setSuccessMsg("JSON actualizado correctamente.");
       setIsEditing(false);
@@ -88,13 +98,14 @@ export default function EndpointDetails({ selectedCard, handleClose }) {
   };
 
   return (
-    <div
-      className={`
-        absolute w-[560px] p-6 glass-card transition-all duration-500
-        bg-white/10 border border-white/20 rounded-xl shadow-lg
-        ${selectedCard ? "translate-x-[260px] opacity-100" : "opacity-0 pointer-events-none"}
-      `}
-    >
+  <div
+    className={`
+      glass-card p-6 bg-white/10 border border-white/20 rounded-xl shadow-lg 
+      transition-all duration-300 
+      ${selectedCard ? "opacity-100 scale-100 visible" : "opacity-0 scale-95 invisible"}
+    `}
+  >
+
       {selectedCard && (
         <>
           {/* Título + Editar + Borrar */}
@@ -138,7 +149,6 @@ export default function EndpointDetails({ selectedCard, handleClose }) {
 
             <p>
               <span className="font-semibold">Request to:</span>{" "}
-              
             </p>
             <p>http://localhost:8000/{selectedCard.id}</p>
           </div>
@@ -164,19 +174,15 @@ export default function EndpointDetails({ selectedCard, handleClose }) {
                   font-mono max-h-72 overflow-auto whitespace-pre-wrap
                 "
               >
-                {JSON.stringify(
-  typeof selectedCard.info === "string"
-    ? JSON.parse(selectedCard.info)
-    : selectedCard.info,
-  null,
-  2
-)}
+                {jsonValue}
               </pre>
             )}
           </div>
 
           {error && <p className="text-red-400 text-sm mt-2">{error}</p>}
-          {successMsg && <p className="text-green-400 text-sm mt-2">{successMsg}</p>}
+          {successMsg && (
+            <p className="text-green-400 text-sm mt-2">{successMsg}</p>
+          )}
 
           {/* Botones edición */}
           {isEditing && (
