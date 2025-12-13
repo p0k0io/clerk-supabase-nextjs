@@ -7,6 +7,7 @@ import { useUser } from "@clerk/nextjs";
 import EndpointList from "../components/endpoint/EndpointList";
 import EndpointDetails from "../components/endpoint/EndpointDetails";
 import CreateEndPopup from "../components/endpoint/CreateEndPopup";
+import DashboardCharts from "../components/charts/DashboardCharts";
 
 export default function Home() {
   const { user, isLoaded } = useUser();
@@ -55,7 +56,7 @@ export default function Home() {
         {/* LISTA */}
         <motion.div
           className="w-[380px] flex-shrink-0 h-full overflow-y-auto"
-          animate={{ x: selectedCard ? -80 : 0 }}
+          animate={{ x: selectedCard ? -80 : 340 }}
           transition={{ type: "spring", stiffness: 250, damping: 30 }}
         >
           <EndpointList
@@ -89,25 +90,8 @@ export default function Home() {
       </div>
 
       {/* PANEL INFERIOR ESTADÍSTICAS */}
-      <div className="w-full mt-8 h-auto rounded-xl p-4bg-white/5 border border-white/10 rounded-xl p-4 overflow-y-auto">
-        <h3 className="text-white text-lg font-semibold mb-3">Estadísticas</h3>
-        <div className="space-y-3">
-          {["Peticiones recientes", "Promedio de respuesta", "Tamaño enviado", "Errores detectados"].map(
-            (titulo, index) => (
-              <details
-                key={index}
-                className="bg-black/20 border border-white/10 rounded-lg p-3 text-white/80 cursor-pointer transition-all"
-              >
-                <summary className="font-semibold text-white cursor-pointer">
-                  {titulo}
-                </summary>
-                <div className="mt-2 text-sm text-white/70">
-                  <p>Contenido de ejemplo para "{titulo}".</p>
-                </div>
-              </details>
-            )
-          )}
-        </div>
+      <div className="w-full mt-8 h-auto  bg-white/5 border border-white/10 rounded-xl p-4 overflow-y-auto">
+        {user && <DashboardCharts userId={user.id} />}
       </div>
 
       {/* POPUP */}
