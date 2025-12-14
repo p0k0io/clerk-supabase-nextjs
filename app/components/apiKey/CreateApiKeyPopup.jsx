@@ -45,18 +45,15 @@ export default function CreateApiKeyPopup({ open, onClose }) {
  const handleCopy = async () => {
   if (!apiKey) return;
 
-  if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
+  if (navigator?.clipboard?.writeText) {
     try {
       await navigator.clipboard.writeText(apiKey);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error("No se pudo copiar al portapapeles", err);
-      alert("No se pudo copiar al portapapeles");
+      // No mostramos alert, solo fallará silenciosamente
     }
-  } else {
-    // fallback: prompt para copiar manualmente
-    prompt("Copiar API Key:", apiKey);
   }
 };
 
