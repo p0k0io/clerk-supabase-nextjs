@@ -42,20 +42,32 @@ export default function CreateApiKeyPopup({ open, onClose }) {
     onClose();
   };
 
- const handleCopy = async () => {
-  if (!apiKey) return;
+ const handleCopy = (text) => {
+  if (!text) return;
 
   if (navigator?.clipboard?.writeText) {
+    // Copiar normalmente en entornos seguros
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  } else {
+    // Fallback para producción HTTP
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    document.body.appendChild(textarea);
+    textarea.select();
     try {
-      await navigator.clipboard.writeText(apiKey);
+      document.execCommand("copy");
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error("No se pudo copiar al portapapeles", err);
-      // No mostramos alert, solo fallará silenciosamente
     }
+    document.body.removeChild(textarea);
   }
 };
+
 
   return (
     <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
