@@ -47,17 +47,41 @@ export default function CreateApiKeyPopup({ open, onClose }) {
   };
 
   /* ---------------- COPY LOGIC ---------------- */
-  const handleCopy = async () => {
-    if (!apiKey) return;
+ const handleCopy = async () => {
+  if (!apiKey) return;
 
+  // Clipboard API (HTTPS o localhost)
+  if (navigator?.clipboard?.writeText) {
     try {
       await navigator.clipboard.writeText(apiKey);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+      return;
     } catch (err) {
-      console.error("Error al copiar", err);
+      console.warn("Clipboard API falló, usando fallback");
     }
-  };
+  }
+
+  // Fallback (HTTP / VPS)
+  try {
+    const textarea = document.createElement("textarea");
+    textarea.value = apiKey;
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+
+    document.execCommand("copy");
+    document.body.removeChild(textarea);
+
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  } catch (err) {
+    console.error("No se pudo copiar la API Key", err);
+  }
+};
 
   /* ---------------- RESET / CLOSE ---------------- */
   const handleClose = () => {

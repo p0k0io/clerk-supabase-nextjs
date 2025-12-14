@@ -14,6 +14,7 @@ import {
   Webhook
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import WebhookStats from "./WebhookStats";
 
 export default function EndpointDetails({ selectedCard, handleClose }) {
    const [visible, setVisible] = useState(false);
@@ -186,7 +187,7 @@ export default function EndpointDetails({ selectedCard, handleClose }) {
           />
 
            <InfoItem
-      icon={Hash}
+      icon={Webhook}
       label="Secret Webhook"
       mono
       value={
@@ -247,8 +248,13 @@ export default function EndpointDetails({ selectedCard, handleClose }) {
           {successMsg && <p className="text-sm text-green-400">{successMsg}</p>}
         </div>
       )}
+      
+      <div className="p-10">
 
-      <WebhookStats selectedCard={selectedCard} />
+      <WebhookStats endpointId={selectedCard.id} />
+
+
+     </div>
 
       {/* Footer */}
       <footer className="flex shrink-0 items-center justify-between gap-3 border-t border-white/10 bg-black/30 px-8 py-5">
