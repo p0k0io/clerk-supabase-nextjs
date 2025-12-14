@@ -2,128 +2,154 @@
 
 import { useState } from "react";
 import { useUser } from "@clerk/nextjs";
+import { Copy, Check, Key } from "lucide-react";
 
 export default function CreateApiKeyPopup({ open, onClose }) {
   const { user } = useUser();
+
   const [keyName, setKeyName] = useState("");
-  const [apiKey, setApiKey] = useState("");
+  const [apiKey, setApiKey] = useState(null);
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [error, setError] = useState(null);
 
   if (!open) return null;
 
-  const handleConfirm = async () => {
-    if (!keyName) return;
+  /* ---------------- CREATE API KEY ---------------- */
+  const handleCreateKey = async () => {
+    if (!keyName || !user?.id) return;
 
     setLoading(true);
+    setError(null);
+
     try {
-      const response = await fetch("/api/create/api-key", {
+      const res = await fetch("/api/create/api-key", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user.id, name: keyName }),
+        body: JSON.stringify({
+          userId: user.id,
+          name: keyName,
+        }),
       });
 
-      if (!response.ok) throw new Error("Error al generar la API Key");
+      if (!res.ok) {
+        throw new Error("Error creando API Key");
+      }
 
-      const data = await response.json();
+      const data = await res.json();
       setApiKey(data.apiKey);
-    } catch (error) {
-      console.error("Hubo un problema:", error);
-      alert("Hubo un problema generando la API Key");
+    } catch (err) {
+      console.error(err);
+      setError("No se pudo generar la API Key");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleCancel = () => {
-    setKeyName("");
-    setApiKey("");
-    setCopied(false);
-    onClose();
-  };
+  /* ---------------- COPY LOGIC ---------------- */
+  const handleCopy = async () => {
+    if (!apiKey) return;
 
- const handleCopy = (text) => {
-  if (!text) return;
-
-  if (navigator?.clipboard?.writeText) {
-    // Copiar normalmente en entornos seguros
-    navigator.clipboard.writeText(text).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
-  } else {
-    // Fallback para producción HTTP
-    const textarea = document.createElement("textarea");
-    textarea.value = text;
-    document.body.appendChild(textarea);
-    textarea.select();
     try {
-      document.execCommand("copy");
+      await navigator.clipboard.writeText(apiKey);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error("No se pudo copiar al portapapeles", err);
+      console.error("Error al copiar", err);
     }
-    document.body.removeChild(textarea);
-  }
-};
+  };
 
+  /* ---------------- RESET / CLOSE ---------------- */
+  const handleClose = () => {
+    setKeyName("");
+    setApiKey(null);
+    setCopied(false);
+    setError(null);
+    onClose();
+  };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
-      <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl w-96 p-6 flex flex-col gap-4">
-        {!apiKey ? (
-          <>
-            <h2 className="text-xl font-semibold text-white text-center">
-              Generar nueva API Key
-            </h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+      <div className="w-full max-w-xl rounded-2xl border border-white/10 bg-neutral-900 shadow-2xl overflow-hidden">
+        {/* Header */}
+        <header className="border-b border-white/10 px-6 py-5">
+          <h2 className="flex items-center gap-2 text-lg font-semibold text-white">
+            <Key size={18} />
+            Generar API Key
+          </h2>
+        </header>
 
-            <input
-              type="text"
-              placeholder="Nombre de la API Key"
-              value={keyName}
-              onChange={(e) => setKeyName(e.target.value)}
-              className="w-full px-4 py-2 rounded-xl bg-white/20 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/40"
-            />
+        {/* Content */}
+        <div className="space-y-6 p-6">
+          {!apiKey ? (
+            <>
+              <div className="space-y-2">
+                <label className="text-sm text-white/70">
+                  Nombre de la API Key
+                </label>
+                <input
+                  value={keyName}
+                  onChange={(e) => setKeyName(e.target.value)}
+                  placeholder="Ej: Producción, Backend"
+                  className="w-full rounded-xl border border-white/20 bg-black/30 px-4 py-2.5 text-sm text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+              </div>
 
-            <div className="flex justify-between mt-4">
-              <button
-                onClick={handleCancel}
-                className="flex-1 mr-2 px-4 py-2 rounded-xl bg-gray-600 text-white font-medium hover:bg-gray-500 transition"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleConfirm}
-                disabled={loading || !keyName}
-                className="flex-1 ml-2 px-4 py-2 rounded-xl bg-slate-700 text-white font-medium hover:bg-slate-600 transition disabled:opacity-50"
-              >
-                {loading ? "Generando..." : "Confirmar"}
-              </button>
-            </div>
-          </>
-        ) : (
-          <>
-            <h2 className="text-xl font-semibold text-white text-center">
-              ¡API Key generada!
-            </h2>
-            <div className="flex items-center justify-between bg-white/20 rounded-xl px-4 py-2 border border-white/30 text-white font-mono">
-              <span className="truncate">{apiKey}</span>
-              <button
-                onClick={handleCopy}
-                className="ml-2 px-2 py-1 bg-white/30 rounded-xl hover:bg-white/40 transition text-sm"
-              >
-                {copied ? "Copiado!" : "Copiar"}
-              </button>
-            </div>
+              {error && (
+                <p className="text-sm text-red-400">{error}</p>
+              )}
+            </>
+          ) : (
+            <>
+              <div className="rounded-xl border border-white/10 bg-black/30 p-4">
+                <p className="mb-2 text-xs text-white/60">
+                  Guarda esta API Key, no se mostrará de nuevo
+                </p>
+
+                <div className="flex items-center justify-between gap-3 rounded-lg bg-black/40 px-4 py-3 font-mono text-sm text-white">
+                  <span className="truncate select-all">{apiKey}</span>
+
+                  <button
+                    onClick={handleCopy}
+                    className="flex items-center gap-1 text-white/60 hover:text-white transition"
+                  >
+                    {copied ? (
+                      <>
+                        <Check size={16} />
+                        Copiado
+                      </>
+                    ) : (
+                      <>
+                        <Copy size={16} />
+                        Copiar
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Footer */}
+        <footer className="flex items-center justify-between gap-3 border-t border-white/10 bg-black/30 px-6 py-5">
+          <button
+            onClick={handleClose}
+            className="rounded-xl bg-gray-600 px-5 py-2.5 text-sm text-white hover:bg-gray-700 transition"
+          >
+            Cerrar
+          </button>
+
+          {!apiKey && (
             <button
-              onClick={handleCancel}
-              className="mt-4 px-4 py-2 rounded-xl bg-slate-700 text-white font-medium hover:bg-slate-600 transition"
+              onClick={handleCreateKey}
+              disabled={loading || !keyName}
+              className="rounded-xl bg-slate-700 px-5 py-2.5 text-sm text-white hover:bg-slate-600 transition disabled:opacity-50"
             >
-              Cerrar
+              {loading ? "Generando..." : "Generar"}
             </button>
-          </>
-        )}
+          )}
+        </footer>
       </div>
     </div>
   );
