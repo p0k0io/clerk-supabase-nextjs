@@ -30,6 +30,7 @@ export async function POST(req: Request) {
           id_user: userId,
           name: name.trim(),
           info: payloadJson, // JSON string
+          secret_webhook: secretWebhook(),
         },
       ])
       .select("id")
@@ -58,3 +59,7 @@ export async function POST(req: Request) {
     );
   }
 }
+function secretWebhook(): string {
+  return `orbital-${crypto.randomUUID()}`;
+}
+

@@ -10,10 +10,15 @@ import {
   Link as LinkIcon,
   Clock,
   Hash,
+  Eye, EyeOff, RefreshCw
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
 export default function EndpointDetails({ selectedCard, handleClose }) {
+   const [visible, setVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+
   const [isEditing, setIsEditing] = useState(false);
   const [jsonValue, setJsonValue] = useState("");
   const [error, setError] = useState("");
@@ -36,7 +41,22 @@ export default function EndpointDetails({ selectedCard, handleClose }) {
         2
       )
     );
+    console.log("Cargado selectedCard en detalles:", selectedCard);
   }, [selectedCard]);
+
+   const handleRegenerate = async () => {
+    try {
+      setLoading(true);
+      await fetch(`/api/edit/webhook_secret`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: selectedCard.id }),
+      });
+      // aquí normalmente refrescas datos o vuelves a pedir la card
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const startEditing = () => setIsEditing(true);
 
@@ -122,21 +142,29 @@ export default function EndpointDetails({ selectedCard, handleClose }) {
         </div>
 
         {/* Top right actions with tooltip */}
-        <div className="flex shrink-0 items-center gap-2">
-          <TooltipButton label="Probar endpoint" onClick={testEndpoint} className="bg-yellow-500 text-black hover:bg-yellow-400">
-            <FlaskConical size={16} />
-          </TooltipButton>
+       <div className="flex shrink-0 items-center gap-2">
+  <ActionButton
+    icon={FlaskConical}
+    label="Probar"
+    onClick={testEndpoint}
+  />
 
-          {!isEditing && (
-            <TooltipButton label="Editar JSON" onClick={startEditing} className="bg-blue-500/70 text-white hover:bg-blue-600">
-              <Pencil size={16} />
-            </TooltipButton>
-          )}
+  {!isEditing && (
+    <ActionButton
+      icon={Pencil}
+      label="Edit info"
+      onClick={startEditing}
+    />
+  )}
 
-          <TooltipButton label="Eliminar endpoint" onClick={deleteEndpoint} className="bg-red-600 text-white hover:bg-red-700">
-            <Trash size={16} />
-          </TooltipButton>
-        </div>
+  <ActionButton
+    icon={Trash}
+    label="Eliminar"
+    danger
+    onClick={deleteEndpoint}
+  />
+</div>
+
       </header>
 
       {/* Content */}
@@ -155,6 +183,38 @@ export default function EndpointDetails({ selectedCard, handleClose }) {
             value={`http://localhost:8000/${selectedCard.id}`}
             mono
           />
+
+           <InfoItem
+      icon={Hash}
+      label="Secret Webhook"
+      mono
+      value={
+        <div className="flex items-center gap-2">
+          <span className="select-all">
+            {visible
+              ? selectedCard.secret_webhook
+              : "••••••••••••••••••••••"}
+          </span>
+
+          <button
+            onClick={() => setVisible(!visible)}
+            className="text-muted-foreground hover:text-foreground transition"
+            aria-label="Mostrar / ocultar"
+          >
+            {visible ? <EyeOff size={16} /> : <Eye size={16} />}
+          </button>
+
+          <button
+            onClick={handleRegenerate}
+            disabled={loading}
+            className="text-muted-foreground hover:text-foreground transition disabled:opacity-50"
+            aria-label="Regenerar secret"
+          >
+            <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
+          </button>
+        </div>
+      }
+    />
         </aside>
 
         {/* JSON */}
@@ -238,19 +298,73 @@ function TooltipButton({ children, label, onClick, className }) {
 }
 
 function InfoItem({ icon: Icon, label, value, mono }) {
+  const isReactNode = typeof value === "object";
+
   return (
     <div className="flex min-w-0 items-start gap-3">
       <div className="mt-0.5 rounded-lg bg-white/10 p-2 text-white/70">
         <Icon size={14} />
       </div>
+
       <div className="min-w-0 flex-1">
         <p className="text-xs uppercase tracking-wide text-white/50">
           {label}
         </p>
-        <p className={`break-all text-sm text-white ${mono ? "font-mono text-xs" : ""}`}>
-          {value}
-        </p>
+
+        {isReactNode ? (
+          <div className={`break-all text-sm text-white ${mono ? "font-mono text-xs" : ""}`}>
+            {value}
+          </div>
+        ) : (
+          <p className={`break-all text-sm text-white ${mono ? "font-mono text-xs" : ""}`}>
+            {value}
+          </p>
+        )}
       </div>
     </div>
   );
 }
+
+function ActionButton({ icon: Icon, label, onClick, danger = false }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`
+        group relative flex items-center justify-center h-10
+        overflow-hidden rounded-xl border px-3 py-2
+        text-sm font-medium transition-all duration-300 ease-out
+        ${danger
+          ? "border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/20"
+          : "border-white/15 bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
+        }
+        w-10 hover:w-28
+      `}
+    >
+      {/* Icono */}
+      <Icon
+        size={16}
+        className="
+          absolute left-1/2 -translate-x-1/2
+          transition-all duration-300
+          group-hover:left-4 group-hover:translate-x-0
+        "
+      />
+
+      {/* Texto */}
+      <span
+        className="
+          absolute left-10
+          whitespace-nowrap opacity-0
+          transition-all duration-300
+          group-hover:opacity-100
+        "
+      >
+        {label}
+      </span>
+    </button>
+  );
+}
+
+
+
+

@@ -20,7 +20,7 @@ export async function POST(req: Request) {
 
     const { data, error } = await supabase
       .from("endpoints")
-      .select("id, id_user, name, info, created_at")
+      .select("id, id_user, name, info, secret_webhook, created_at")
       .eq("id_user", userId)
       .order("created_at", { ascending: false });
 
