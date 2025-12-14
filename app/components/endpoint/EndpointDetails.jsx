@@ -10,7 +10,8 @@ import {
   Link as LinkIcon,
   Clock,
   Hash,
-  Eye, EyeOff, RefreshCw
+  Eye, EyeOff, RefreshCw,
+  Webhook
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -246,6 +247,8 @@ export default function EndpointDetails({ selectedCard, handleClose }) {
           {successMsg && <p className="text-sm text-green-400">{successMsg}</p>}
         </div>
       )}
+
+      <WebhookStats selectedCard={selectedCard} />
 
       {/* Footer */}
       <footer className="flex shrink-0 items-center justify-between gap-3 border-t border-white/10 bg-black/30 px-8 py-5">

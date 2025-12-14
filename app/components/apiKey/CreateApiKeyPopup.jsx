@@ -42,12 +42,23 @@ export default function CreateApiKeyPopup({ open, onClose }) {
     onClose();
   };
 
-  const handleCopy = () => {
-    if (!apiKey) return;
-    navigator.clipboard.writeText(apiKey);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
+ const handleCopy = async () => {
+  if (!apiKey) return;
+
+  if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
+    try {
+      await navigator.clipboard.writeText(apiKey);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("No se pudo copiar al portapapeles", err);
+      alert("No se pudo copiar al portapapeles");
+    }
+  } else {
+    // fallback: prompt para copiar manualmente
+    prompt("Copiar API Key:", apiKey);
+  }
+};
 
   return (
     <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
