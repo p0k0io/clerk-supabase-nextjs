@@ -251,6 +251,9 @@ export default function EndpointDetails({ selectedCard, handleClose }) {
       
       <div className="p-10">
 
+      
+      
+
       <WebhookStats endpointId={selectedCard.id} />
 
 

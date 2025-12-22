@@ -8,6 +8,8 @@ import {
   ChevronRight,
   Eye,
   EyeOff,
+  Activity,
+  Clock,
 } from "lucide-react";
 
 const PREVIEW_SIZE = 5;
@@ -18,6 +20,11 @@ export default function WebhookStats({ endpointId }) {
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [stats, setStats] = useState({ success: 0, failed: 0 });
+  const [averages, setAverages] = useState({
+    avgUsage: 0,
+    avgResponseTime: 0,
+  });
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [expanded, setExpanded] = useState(false);
@@ -25,8 +32,12 @@ export default function WebhookStats({ endpointId }) {
   useEffect(() => {
     if (!endpointId) return;
     fetchLogs();
+    fetchAverages();
   }, [endpointId, page, expanded]);
 
+  /* =======================
+      FETCH LOGS
+  ======================= */
   const fetchLogs = async () => {
     setLoading(true);
     setError(null);
@@ -57,6 +68,33 @@ export default function WebhookStats({ endpointId }) {
     }
   };
 
+  /* =======================
+      FETCH AVERAGES
+  ======================= */
+ const fetchAverages = async () => {
+  try {
+    const res = await fetch("/api/get/webhook/stats", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        endpoint_id: endpointId,
+      }),
+    });
+
+    if (!res.ok) throw new Error();
+
+    const data = await res.json();
+
+    setAverages({
+      avgUsage: data.avg_credit_use ?? 0,
+      avgResponseTime: data.avg_response_time_ms ?? 0,
+    });
+  } catch {
+    // fail silencioso
+  }
+
+  };
+
   const totalPages = Math.ceil(
     total / (expanded ? FULL_PAGE_SIZE : PREVIEW_SIZE)
   );
@@ -68,6 +106,41 @@ export default function WebhookStats({ endpointId }) {
 
   return (
     <section className="space-y-6">
+      {/* ===== Averages ===== */}
+      <div className="grid gap-4 sm:grid-cols-2">
+        {/* Average usage */}
+        <div className="rounded-xl border border-white/10 bg-neutral-900 p-5">
+          <div className="mb-2 flex items-center gap-2 text-xs text-white/60">
+            <Activity size={14} />
+            Media de consumo
+          </div>
+
+          <div className="text-2xl font-semibold text-white">
+            {averages.avgUsage.toFixed(2)}
+          </div>
+
+          <p className="mt-1 text-xs text-white/40">
+            Créditos consumidos por petición
+          </p>
+        </div>
+
+        {/* Average response time */}
+        <div className="rounded-xl border border-white/10 bg-neutral-900 p-5">
+          <div className="mb-2 flex items-center gap-2 text-xs text-white/60">
+            <Clock size={14} />
+            Tiempo medio de respuesta
+          </div>
+
+          <div className="text-2xl font-semibold text-white">
+            {averages.avgResponseTime} ms
+          </div>
+
+          <p className="mt-1 text-xs text-white/40">
+            Promedio de latencia del webhook
+          </p>
+        </div>
+      </div>
+
       {/* ===== Success vs Failed ===== */}
       <div className="rounded-xl border border-white/10 bg-neutral-900 p-5">
         <div className="mb-2 flex justify-between text-xs text-white/70">
@@ -134,13 +207,9 @@ export default function WebhookStats({ endpointId }) {
               >
                 <div className="flex items-center gap-3">
                   {log.status === "success" ? (
-                    <CheckCircle
-                      size={14}
-                      className="text-green-400"
-                    />
+                    <CheckCircle size={14} className="text-green-400" />
                   ) : (
-                    <XCircle size={14} className="text-red-400"
-                    />
+                    <XCircle size={14} className="text-red-400" />
                   )}
 
                   <span className="font-mono text-white">
@@ -160,7 +229,7 @@ export default function WebhookStats({ endpointId }) {
           </div>
         )}
 
-        {/* ===== Pagination (solo expanded) ===== */}
+        {/* ===== Pagination ===== */}
         {expanded && totalPages > 1 && (
           <div className="flex items-center justify-between border-t border-white/10 px-5 py-3">
             <button
@@ -186,7 +255,7 @@ export default function WebhookStats({ endpointId }) {
             </button>
           </div>
         )}
-      </div>
+      </div>S
     </section>
   );
 }
