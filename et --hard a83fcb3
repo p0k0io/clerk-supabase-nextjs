@@ -1,0 +1,29 @@
+[33m6aeacc4[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m jjjj
+[33m494c661[m ddd
+[33m11a5055[m werrwer
+[33ma833473[m implementada IA assistant endpoint y bloqueo eslin t produccion
+[33ma83fcb3[m[33m ([m[1;31morigin/main[m[33m)[m kkkkk
+[33m348bb5f[m Add: Webhook Stats added and working ok
+[33me2434e2[m sdfsdf
+[33mf70bfbc[m 2222
+[33m80282e8[m sadas
+[33m4cac11e[m asdasd
+[33m2574cdb[m Fix: Webhook actualizado secret webhook rotacion modificacion endpoint
+[33mcf395ea[m asdasd
+[33mca41694[m Add: Dashboard mejorado fix del absolute en la visualizacion de los endpoints añladido basico del estilo de las estats
+[33m638f662[m 05/12
+[33m694e9df[m Add: credit balance seguimiento de los documentos + Fix: Mostrar endpoints de user
+[33mf785c2f[m add:budget start
+[33mf4a47e0[m Add: edit and delete endpoint
+[33m7cca11d[m Add: Creacion y visualizacion basica de los endpoi nts
+[33m07244e8[m Add: Layout Dashboard creado
+[33m6c49d24[m Add: Api keys completo falta boton borrar
+[33mc17e3ab[m Fix: add webhook signing secret to .env and create  webhook routes
+[33ma9cbd01[m Add: Formulario de creacion del endpoint
+[33mbde0fbb[m qwd
+[33md94f1ce[m[33m ([m[1;31mupstream/main[m[33m, [m[1;31mupstream/HEAD[m[33m)[m Merge pull request #4 from clerk/brk.chore/supabase-integration-2
+[33mbd16ae6[m Update template based on new guide
+[33mab903c8[m chore: Bump Next.js (#2)
+[33m0f54c02[m add supabase integration
+[33m3070fee[m Update README.md
+[33m627b73f[m Initial commit
