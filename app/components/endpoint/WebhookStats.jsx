@@ -255,7 +255,7 @@ export default function WebhookStats({ endpointId }) {
             </button>
           </div>
         )}
-      </div>S
+      </div>
     </section>
   );
 }
